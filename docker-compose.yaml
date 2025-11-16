@@ -1,0 +1,50 @@
+services:
+  db:
+    build: ./deployments/docker/db
+    image: postgres:17-alpine
+    container_name: avito_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pullRequests
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deployments/docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - avito-network
+
+  web:
+    build:
+      context: .
+      dockerfile: ./deployments/docker/web/Dockerfile
+    image: avito_web:latest
+    container_name: avito_app
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - API_VERSION=v1
+      - API_PORT=8080
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_NAME=pullRequests
+      - POSTGRES_HOST=db
+    networks:
+      - avito-network
+
+volumes:
+  postgres_data:
+
+networks:
+  avito-network:
+    driver: bridge

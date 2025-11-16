@@ -1,4 +1,4 @@
-package config
+package server
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ func getEnv() *Env {
 	return &env
 }
 
-func New() *Config {
+func NewConfig() *Config {
 	return &Config{
 		bindAddr: ":8080",
 		env:      getEnv(),
