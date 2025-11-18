@@ -24,7 +24,6 @@ services:
     build:
       context: .
       dockerfile: ./deployments/docker/web/Dockerfile
-    image: avito_web:latest
     container_name: avito_app
     ports:
       - "8080:8080"
